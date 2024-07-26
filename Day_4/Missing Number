@@ -1,0 +1,43 @@
+inline int findUnsetBit(uint8_t num) {
+  int position = 0;
+
+  while ((num & 1) == 1) {
+    num >>= 1;
+    position++;
+  }
+
+  return position;
+}
+
+int missingNumber(int *nums, int numsSize) {
+  int i;
+
+  
+  int flagArraySize = (numsSize + 7) / 8;
+
+  
+  uint8_t *flagArray = calloc(flagArraySize, sizeof(uint8_t));
+
+  
+  for (i = 0; i < numsSize; i++) {
+    int index = nums[i] / 8;
+    int bitPosition = nums[i] % 8;
+    int8_t mask = (uint8_t)1 << bitPosition;
+    flagArray[index] |= mask;
+  }
+
+  
+  int bitPosition = -1;
+  for (i = 0; i < flagArraySize; i++) {
+    if (flagArray[i] != 0xFFu) {
+      bitPosition = findUnsetBit(flagArray[i]);
+      break;
+    }
+  }
+
+  int missingNumber = 8 * i + bitPosition;
+
+  free(flagArray);
+
+  return missingNumber;
+}
