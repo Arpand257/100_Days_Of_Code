@@ -1,0 +1,63 @@
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int** spiralMatrixIII(int rows, int cols, int rStart, int cStart, int* returnSize, int** returnColumnSizes) {
+    int c_end = 1, r_end = 1;
+    bool right = true, down = true;
+
+    int **ans = malloc(sizeof(int *) * (cols * rows));
+    *ans = malloc(sizeof(int) * 2);
+    ans[0][0] = rStart;
+    ans[0][1] = cStart;
+    *returnSize = 1;
+    *returnColumnSizes = malloc(sizeof(int) * (cols * rows));
+    **returnColumnSizes = 2;
+
+    while(*returnSize < rows * cols) {
+        int new_c_start = cStart + (right ? 1 : -1);
+        while(abs(new_c_start - cStart) <= c_end) {
+            if(rStart >= 0 && rStart < rows) {
+                if(new_c_start >= 0 && new_c_start < cols) {
+                    *(ans + *returnSize) = malloc(sizeof(int) * 2);
+                    ans[*returnSize][0] = rStart;
+                    ans[*returnSize][1] = new_c_start;
+                    *(*returnColumnSizes + *returnSize) = 2;
+                    (*returnSize)++;
+                }    
+
+                new_c_start += (right ? 1 : -1);
+                continue;
+            }
+
+            break;
+        }
+        cStart += (right ? c_end : -c_end);
+        right = !right;
+        c_end++;
+
+        int new_r_start = rStart + (down ? 1 : -1);
+        while(abs(new_r_start - rStart) <= r_end) {
+            if(cStart >= 0 && cStart < cols) {
+                if(new_r_start >= 0 && new_r_start < rows) {
+                    *(ans + *returnSize) = malloc(sizeof(int) * 2);
+                    ans[*returnSize][0] = new_r_start;
+                    ans[*returnSize][1] = cStart;
+                    *(*returnColumnSizes + *returnSize) = 2;
+                    (*returnSize)++;
+                }
+                
+                new_r_start += (down ? 1 : -1);
+                continue;
+            }
+
+            break;
+        }
+        rStart += (down ? r_end : -r_end);
+        down = !down;
+        r_end++;
+    }
+
+    return ans;
+}
