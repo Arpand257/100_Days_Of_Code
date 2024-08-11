@@ -1,0 +1,38 @@
+int checkEven(int num, int mask) {
+    int tmp = 1 << num;
+    if(tmp & mask) return 0;
+    return mask | tmp;
+}
+
+int update(int** grid, int row, int col) {
+    int mask = 0;
+    int topLeft = grid[row-1][col-1];
+    int bottomLeft = grid[row+1][col-1];
+    int topRight = grid[row-1][col+1];
+    int bottomRight = grid[row+1][col+1];
+    mask = checkEven(topLeft, mask);
+    mask = checkEven(bottomLeft, mask);
+    mask = checkEven(topRight, mask);
+    mask = checkEven(bottomRight, mask);
+    if(mask != 340) return 0;
+    int left = 15 - topLeft - bottomLeft;
+    int top = 15 - topLeft - topRight;
+
+    if(left == grid[row][col-1] && grid[row][col+1] + left == 10 && top == grid[row-1][col] && grid[row+1][col] + top == 10) return 1;
+    return 0;
+}
+
+int numMagicSquaresInside(int** grid, int gridSize, int* gridColSize) {
+    int ret = 0;
+
+    for(int i = 1; i < gridSize - 1; i++) {
+        for(int j = 1; j < *gridColSize - 1; j++) {
+            if(grid[i][j] == 5) {
+                ret += update(grid, i, j);
+                j++;     
+            }
+        }
+    } 
+
+    return ret;
+}
