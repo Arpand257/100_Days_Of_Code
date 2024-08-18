@@ -1,0 +1,77 @@
+void merge(struct ListNode* node1, struct ListNode* node2, struct ListNode* ptr) {
+    if (node1 == NULL && node2 == NULL) {
+        return;
+    }
+    if (node1 == NULL) {
+        ptr->next = node2;
+        merge(NULL, node2->next, ptr->next);
+    } else if (node2 == NULL) {
+        ptr->next = node1;
+        merge(node1->next, NULL, ptr->next);
+    } else {
+        if (node1->val <= node2->val) {
+            ptr->next = node1;
+            merge(node1->next, node2, ptr->next);
+        } else {
+            ptr->next = node2;
+            merge(node1, node2->next, ptr->next);
+        }
+    }
+    return;
+}
+//starts the merge, just a way to simplify things functionally :)
+struct ListNode* startMerge(struct ListNode* node1, struct ListNode* node2) {
+    if (node1 == NULL && node2 == NULL) {
+        return NULL;
+    }
+    struct ListNode* ptr;
+    if (node1 == NULL) {
+        ptr = node2;
+        merge(NULL, node2->next, ptr);
+    } else if (node2 == NULL) {
+        ptr = node1;
+        merge(node1->next, NULL, ptr);
+    } else {
+        if (node1->val <= node2->val) {
+            ptr = node1;
+            merge(node1->next, node2, ptr);
+        } else {
+            ptr = node2;
+            merge(node1, node2->next, ptr);
+        }
+    }
+    return ptr;
+}
+struct ListNode* mergeKLists(struct ListNode** lists, int listsSize) {
+    //usual thing, checks if the list is small enough in order
+    //to end the program ealier than necessary
+    if (listsSize == 0) {
+        return NULL;
+    }
+    if (listsSize == 1) {
+        return lists[0];
+    }
+    //creation of pointers and then loop happens
+    int j = 0;
+    int i = 0;
+    int currentSize = listsSize;
+    //it plays around with the size of the array
+    //in order to iterate through it
+    while (currentSize > 1) {
+        lists[i] = startMerge(lists[j], lists[j + 1]);
+        i++;
+        j += 2;
+        currentSize--;
+        if (j + 1 == listsSize) {
+            lists[i] = lists[j];
+            j = 0;
+            i = 0;
+            listsSize = currentSize;
+        } else if (j >= listsSize) {
+            j = 0;
+            i = 0;
+            listsSize = currentSize;
+        }
+    }
+    return lists[0];
+}
