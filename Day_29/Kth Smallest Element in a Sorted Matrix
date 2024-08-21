@@ -1,0 +1,21 @@
+int kthSmallest(int** matrix, int matrixSize, int* matrixColSize, int k) {
+    int result=matrix[0][0], jj[matrixColSize[0]], smallest, iSmallest;
+    memset(jj, 0, matrixColSize[0]*sizeof(int));
+
+    for(; k>0; k--){
+        /* initial smallest */
+        for(int i=0; i<matrixSize; i++)
+        { if(jj[i]<matrixColSize[i]){ smallest=matrix[i][jj[i]]; iSmallest=i; break; } }
+
+        /* pick the smallest */
+        for(int i=0; i<matrixSize; i++){
+            if(jj[i]<matrixColSize[i] && smallest>matrix[i][jj[i]])
+            { smallest=matrix[i][jj[i]]; iSmallest=i; }
+        }
+
+        /* store the k-th smallest */
+        result=smallest; jj[iSmallest]++;
+    }
+
+    return result;
+}
