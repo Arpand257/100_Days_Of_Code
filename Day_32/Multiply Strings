@@ -1,0 +1,33 @@
+char* multiply(char* num1, char* num2) {
+    if (strcmp(num1, "0") == 0 || strcmp(num2, "0") == 0) {
+        char* zero_result = (char*)malloc(2 * sizeof(char));
+        strcpy(zero_result, "0");
+        return zero_result;
+    }
+    int len1 = strlen(num1);
+    int len2 = strlen(num2);
+    int* result = (int*)calloc(len1 + len2, sizeof(int));
+    for (int i = len1 - 1; i >= 0; i--) {
+        for (int j = len2 - 1; j >= 0; j--) {
+            int mul = (num1[i] - '0') * (num2[j] - '0');
+            int total = mul + result[i + j + 1];
+            result[i + j] += total / 10;
+            result[i + j + 1] = total % 10;
+        }
+    }
+    char* result_str = (char*)malloc((len1 + len2 + 1) * sizeof(char));
+    int idx = 0;
+    int start = 0;
+    for (int i = 0; i < len1 + len2; i++) {
+        if (!(result[i] == 0 && start == 0)) {
+            result_str[idx++] = result[i] + '0';
+            start = 1;
+        }
+    }
+    result_str[idx] = '\0';
+    free(result);
+    if (idx == 0) {
+        strcpy(result_str, "0");
+    }
+    return result_str;
+}
