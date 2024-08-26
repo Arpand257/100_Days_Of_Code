@@ -1,0 +1,48 @@
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+void permuteR(int* nums, int numsSize, int *currIdx, int** retArr, int l, int r)
+{
+    if(l == r)
+    {
+        
+        memcpy(retArr[*currIdx], nums, sizeof(int) * numsSize);
+        
+        *currIdx = *currIdx + 1;
+        return;
+    }
+    for(int i = l; i <= r; i++)
+    {
+        int temp = nums[l];
+        nums[l] = nums[i];
+        nums[i] = temp;
+        
+        permuteR(nums, numsSize, currIdx, retArr, l + 1, r);
+    
+        temp = nums[l];
+        nums[l] = nums[i];
+        nums[i] = temp;
+    }
+    return;
+}
+
+int** permute(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {
+    int numPer = 1;
+    for(int i = 1; i <= numsSize; i++)
+    {
+        numPer *= i;
+    }
+    int **retArr = malloc(sizeof(int *) * numPer);
+    *returnColumnSizes = malloc(sizeof(int) * numPer);
+    *returnSize = numPer;
+    for(int i = 0; i < numPer; i++)
+    {
+        retArr[i] = malloc(sizeof(int) * numsSize);
+        (*returnColumnSizes)[i] = numsSize;
+    }
+    int currIdx = 0;
+    permuteR(nums, numsSize, &currIdx, retArr, 0, numsSize - 1);
+    return retArr;
+}
