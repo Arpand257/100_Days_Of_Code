@@ -1,0 +1,130 @@
+#define maxN 10005
+#define maxCapa 10
+
+typedef struct {
+    int node;
+    double prob;
+} Edge;
+
+typedef struct {
+    Edge *edges;
+    int size;
+    int capacity;
+} AdjList;
+
+typedef struct {
+    double probability;
+    int node;
+} QueueNode;
+
+typedef struct {
+    QueueNode *nodes;
+    int idx;
+    int capacity;
+} MaxHeap;
+
+void swap(QueueNode *a, QueueNode *b) {
+    QueueNode tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+void heapify(MaxHeap *heap, int index) {
+    int left = index * 2 + 1;
+    int right = index * 2 + 2;
+    int biggeridx = index;
+    if (left < heap->idx && heap->nodes[left].probability > heap->nodes[biggeridx].probability) {
+        biggeridx = left;
+    }
+    if (right < heap->idx && heap->nodes[right].probability > heap->nodes[biggeridx].probability) {
+        biggeridx = right;
+    }
+    if (biggeridx != index) {
+        swap(&heap->nodes[index], &heap->nodes[biggeridx]);
+        heapify(heap, biggeridx);
+    }
+}
+
+QueueNode pop(MaxHeap *heap) {
+    QueueNode res = heap->nodes[0];
+    heap->nodes[0] = heap->nodes[heap->idx - 1];
+    heap->idx--;
+    heapify(heap, 0);
+    return res;
+}
+
+void push(MaxHeap *heap, double probability, int node) {
+    if (heap->idx == heap->capacity) {
+        heap->capacity *= 2;
+        heap->nodes = (QueueNode *)realloc(heap->nodes, heap->capacity * sizeof(QueueNode));
+    }
+    heap->nodes[heap->idx].probability = probability;
+    heap->nodes[heap->idx].node = node;
+    heap->idx++;
+    int index = heap->idx - 1;
+    while (index > 0 && heap->nodes[index].probability > heap->nodes[(index - 1) / 2].probability) {
+        swap(&heap->nodes[index], &heap->nodes[(index - 1) / 2]);
+        index = (index - 1) / 2;
+    }
+}
+
+AdjList *create(int n) {
+    AdjList *adj = (AdjList *)malloc(n * sizeof(AdjList));
+    for (int i = 0; i < n; i++) {
+        adj[i].edges = (Edge *)malloc(maxCapa * sizeof(Edge));
+        adj[i].size = 0;
+        adj[i].capacity = maxCapa;
+    }
+    return adj;
+}
+
+void addEdge(AdjList *adj, int u, int v, double prob) {
+    if (adj[u].size == adj[u].capacity) {
+        adj[u].capacity *= 2;
+        adj[u].edges = (Edge *)realloc(adj[u].edges, adj[u].capacity * sizeof(Edge));
+    }
+    adj[u].edges[adj[u].size].node = v;
+    adj[u].edges[adj[u].size].prob = prob;
+    adj[u].size++;
+}
+
+double maxProbability(int n, int **edges, int edgesSize, int *edgesColSize, double *succProb,
+                      int succProbSize, int start, int end) {
+    if (start == end) {
+        return 1.0;
+    }
+    AdjList *adj = create(n);
+    for (int i = 0; i < edgesSize; i++) {
+        int u = edges[i][0];
+        int v = edges[i][1];
+        double prob = succProb[i];
+        addEdge(adj, u, v, prob);
+        addEdge(adj, v, u, prob);
+    }
+    MaxHeap heap;
+    heap.nodes = (QueueNode *)malloc(n * sizeof(QueueNode));
+    heap.idx = 0;
+    heap.capacity = n;
+
+    double *res = (double *)calloc((n + 1), sizeof(double));
+    res[start] = 1;
+    push(&heap, 1.0, start);
+
+    while (heap.idx > 0) {
+        QueueNode curr = pop(&heap);
+        int u = curr.node;
+        double currProb = curr.probability;
+        if (u == end) {
+            return currProb;
+        }
+        for (int i = 0; i < adj[u].size; i++) {
+            int v = adj[u].edges[i].node;
+            double prob = adj[u].edges[i].prob;
+            if (currProb * prob > res[v]) {
+                res[v] = currProb * prob;
+                push(&heap, res[v], v);
+            }
+        }
+    }
+    return 0.0;
+}
