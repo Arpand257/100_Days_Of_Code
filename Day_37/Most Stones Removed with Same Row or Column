@@ -1,0 +1,69 @@
+typedef struct {
+  int* parent;
+  int* rank;
+} UnionFind;
+
+UnionFind * create_unionFind(int size){
+  UnionFind * uf = (UnionFind*)malloc(sizeof(UnionFind));
+  uf->parent = (int*)malloc(size * sizeof(int));
+  uf->rank = (int*)calloc(size, sizeof(int));
+  for(int i=0; i<size; i++){
+    uf->parent[i] = i;
+  }
+  return uf;
+}
+
+void destroy_unionFind(UnionFind * uf){
+  free(uf->parent);
+  free(uf->rank);
+  free(uf);
+}
+
+int find(UnionFind * uf, int x){
+  if(uf->parent[x] != x){
+    uf->parent[x] = find(uf, uf->parent[x]);
+  }
+  return uf->parent[x];
+}
+
+void Join(UnionFind * uf, int x, int y){
+  int rootX = find(uf, x);
+  int rootY = find(uf, y);
+  if(rootX == rootY) return;
+  
+  if(uf->rank[rootX] > uf->rank[rootY]){
+    uf->parent[rootY] = rootX;
+  }else if(uf->rank[rootX] < uf->rank[rootY]){
+    uf->parent[rootX] = rootY;
+  }else{
+    uf->parent[rootY] = rootX;
+    uf->rank[rootX]++;
+  }
+}
+
+int removeStones(int** stones, int stonesSize, int* stonesColSize) {
+  int rowSize = 0, colSize = 0;
+  for(int i=0; i<stonesSize; i++){
+    rowSize = (stones[i][0] > rowSize) ? stones[i][0] : rowSize ;
+    colSize = (stones[i][1] > colSize) ? stones[i][1] : colSize ;
+  }
+  rowSize++, colSize++;
+  UnionFind * uf = create_unionFind(rowSize + colSize);
+  
+  for(int i=0; i<stonesSize; i++){
+    Join(uf, stones[i][0], stones[i][1] + rowSize);
+  }
+  
+  int uniqueComponent = 0;
+  bool * visited = (bool*)calloc(rowSize + colSize, sizeof(bool));
+  for(int i=0, root; i<stonesSize; i++){
+    root = find(uf, stones[i][0]);
+    if(! visited[root]){
+      visited[root] = true;
+      uniqueComponent++;
+    }
+  }
+  free(visited);
+  destroy_unionFind(uf);
+  return stonesSize - uniqueComponent;    
+}
