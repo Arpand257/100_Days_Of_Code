@@ -1,0 +1,24 @@
+int chalkReplacer(int* chalk, int chalkSize, int k) {
+    
+    long long oneFullSum = 0;
+    int remaining;
+
+    for(int i = 0; i < chalkSize; i++){
+        oneFullSum += chalk[i];
+    }
+
+    remaining = k % oneFullSum;
+    
+    for(int i = 0; i < chalkSize; i++){
+        if(chalk[i] <= remaining){
+            remaining -= chalk[i];
+        }
+        else{
+            return i;
+        }
+    }
+    
+
+    return 0;
+
+}
