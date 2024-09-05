@@ -1,0 +1,29 @@
+/**
+ * Note: The returned array must be malloced, assume caller calls free().
+ */
+int* missingRolls(int* rolls, int rollsSize, int mean, int n, int* returnSize) {
+    *returnSize=n;
+    int* res=(int*)malloc(*returnSize*sizeof(int));
+    int tsum=mean*(n+rollsSize);
+    int asum=0;
+    for(int i=0;i<rollsSize;i++){
+        asum+=rolls[i];
+    }
+    int nsum=tsum-asum;
+    if (nsum < n || nsum > 6*n) {
+        *returnSize = 0;
+        return (int *) NULL;
+    }else{
+        int d=nsum/n;
+        int m=nsum%n;
+        for(int i=0;i<n;i++){
+            if(i<m){
+                res[i]=d+1;
+            }
+            else{
+                res[i]=d;
+            }
+        }
+    }
+    return res;
+}
