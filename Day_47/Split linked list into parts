@@ -1,0 +1,22 @@
+struct ListNode** splitListToParts(struct ListNode* head, int k, int* returnSize) {
+    *returnSize = k;
+    struct ListNode** ret = (struct ListNode**)malloc(k*sizeof(struct ListNode*));
+    int len = 0; struct ListNode* temp = head;
+    while(temp){
+        len++;
+        temp = temp->next;
+    }
+    int q = len/k, r = len%k;
+    for(int i=0;i<k;i++){
+        ret[i] = head;
+        int extra = (i < r) ? 1:0;
+        for(int j=1;j<q+extra && head;j++)
+            head = head->next;
+        if(head){
+            struct ListNode* next = head->next;
+            head->next = NULL;
+            head = next;
+        }
+    }
+    return ret;
+}
