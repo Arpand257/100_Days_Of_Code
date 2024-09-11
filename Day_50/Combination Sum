@@ -1,0 +1,66 @@
+/**
+ * Return an array of arrays of size *returnSize.
+ * The sizes of the arrays are returned as *returnColumnSizes array.
+ * Note: Both returned array and *columnSizes array must be malloced, assume caller calls free().
+ */
+int sum_arr(int *arr, int size)
+{
+    int res = 0;
+    for (int i = 0; i < size; i++) {
+        res += arr[i];
+    }
+    return res;
+}
+
+void backtrack(int *candidates,
+               int candidatesSize,
+               int target,
+               int **res,
+               int *tmp,
+               int level,
+               int last,
+               int *returnSize,
+               int **returnColumnSizes)
+{
+    int sum = sum_arr(tmp, level);
+    if (sum == target) {
+        res[*returnSize] = malloc(level * sizeof(int));
+        memcpy(res[*returnSize], tmp, level * sizeof(int));
+        (*returnColumnSizes)[*returnSize] = level;
+        (*returnSize)++;
+        return;
+    }
+
+    if (sum > target) {
+        return;
+    }
+
+    for (int i = last; i < candidatesSize; i++) {
+        tmp[level] = candidates[i];
+        backtrack(candidates, candidatesSize, target, res, tmp, level + 1, i,
+                  returnSize, returnColumnSizes);
+    }
+}
+
+int **combinationSum(int *candidates,
+                     int candidatesSize,
+                     int target,
+                     int *returnSize,
+                     int **returnColumnSizes)
+{
+    int **res = malloc(200 * sizeof(int *));
+    *returnColumnSizes = malloc(200 * sizeof(int));
+    *returnSize = 0;
+
+    int *tmp = calloc(20, sizeof(int));
+
+    backtrack(candidates, candidatesSize, target, res, tmp, 0, 0, returnSize,
+              returnColumnSizes);
+
+    // realloc
+    res = realloc(res, *returnSize * sizeof(int *));
+    *returnColumnSizes = realloc(*returnColumnSizes, *returnSize * sizeof(int));
+
+    free(tmp);
+    return res;
+}
