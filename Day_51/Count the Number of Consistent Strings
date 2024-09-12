@@ -1,0 +1,12 @@
+int countConsistentStrings(char * allowed, char ** words, int wordsSize){
+    char map[26] = {0}; 
+    while (*allowed)map[(unsigned char)*allowed++ - 'a'] = 1;
+    uint16_t i = -1,c; 
+    int_fast8_t j,f; 
+    while (++i < wordsSize){
+        j = -1, f = 0; 
+        while (words[i][++j] && f == 0) f = 1 * (map[words[i][j] - 'a'] == 0);
+        c += !f;
+    }
+    return c;
+}
