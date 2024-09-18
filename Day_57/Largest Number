@@ -1,0 +1,60 @@
+bool cmp1(const void* a, const void* b) {
+    int num1 = *(int*)a , num2=*(int*)b;
+    int current=num1;
+    int temp1=0;
+    while(current>0){
+        current=current/10;
+        temp1++;
+    }
+    current=num2;
+    int temp2=0;
+    while(current>0){
+        temp2++;
+        current=current/10;
+    }
+    long long num3=(temp1>0)?num2*(pow(10,temp1))+num1:(num2*10);
+
+     long long num4=(temp2>0)?num1*(pow(10,temp2))+num2:(num1*10);
+     printf("\n d",num3);
+     return num4 < num3; 
+}
+char* largestNumber(int* nums, int numsSize) {
+    qsort(nums, numsSize, sizeof(int), cmp1);
+    if(nums[0]==0) return "0";
+    int *sizes=malloc(sizeof(int)*numsSize);
+    int counter=0;
+    for(int i=0 ;i<numsSize;i++){
+        if(nums[i]==0){
+            sizes[i]=1;
+            counter++;
+            continue;
+        }
+        int current=nums[i];
+        int size =0;
+        while(current>0){
+            size++;
+            counter++;
+            current=current/10;
+        }
+        sizes[i]=size;
+    }
+    int j=0;
+    char *ret = (char*)malloc(sizeof(char)*(counter+1));
+    for(int i=0;i<numsSize;i++){
+        if(sizes[i]==1 && j<counter){
+           ret[j]=nums[i]+'0'; 
+        }else{
+            int current =nums[i];
+            int k= sizes[i];
+             while(k>0){
+                ret[j+k-1]=current%10+'0';
+                current=current/10;
+                k--;
+            }
+        }
+        j=j+sizes[i];
+    }
+    ret[counter]='\0';
+    free(sizes);
+    return ret;
+}
