@@ -1,0 +1,71 @@
+int compute(int a, int b, char op) {
+    if (op == '+') return a + b;
+    if (op == '-') return a - b;
+    if (op == '*') return a * b;
+    return 0;  // Shouldn't reach here for valid inputs
+}
+
+// Utility function to check if a string is a number
+int isNumber(char *expr) {
+    for (int i = 0; i < strlen(expr); i++) {
+        if (!isdigit(expr[i])) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
+// Helper function to grow an integer array if needed
+int* growArray(int* array, int currentSize, int newSize) {
+    return (int*)realloc(array, newSize * sizeof(int));
+}
+
+// Recursive function to compute all different ways to add parentheses
+int* diffWaysToCompute(char* expression, int* returnSize) {
+    int capacity = 10; // Initial capacity for the result array
+    int* results = (int*)malloc(capacity * sizeof(int));  // Allocate initial space
+    *returnSize = 0;  // Initialize return size
+
+    // Base case: if the expression is a number, return it directly
+    if (isNumber(expression)) {
+        results[0] = atoi(expression);
+        *returnSize = 1;
+        return results;
+    }
+
+    // Iterate over the expression to find operators
+    for (int i = 0; i < strlen(expression); i++) {
+        char ch = expression[i];
+        if (ch == '+' || ch == '-' || ch == '*') {
+            // Split the expression into left and right parts
+            char leftPart[100], rightPart[100];
+            strncpy(leftPart, expression, i);
+            leftPart[i] = '\0';
+            strcpy(rightPart, expression + i + 1);
+            
+            // Recursively calculate for left and right parts
+            int leftSize, rightSize;
+            int* leftResults = diffWaysToCompute(leftPart, &leftSize);
+            int* rightResults = diffWaysToCompute(rightPart, &rightSize);
+            
+            // Combine results from left and right
+            for (int l = 0; l < leftSize; l++) {
+                for (int r = 0; r < rightSize; r++) {
+                    // Check if we need to grow the results array
+                    if (*returnSize >= capacity) {
+                        capacity *= 2; // Double the capacity
+                        results = growArray(results, capacity / 2, capacity);
+                    }
+                    results[*returnSize] = compute(leftResults[l], rightResults[r], ch);
+                    (*returnSize)++;
+                }
+            }
+
+            // Free the allocated space for sub-results
+            free(leftResults);
+            free(rightResults);
+        }
+    }
+
+    return results;
+}
