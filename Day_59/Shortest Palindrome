@@ -1,0 +1,35 @@
+char* shortestPalindrome(char* s) {
+    int sSize = 0;
+    for(char* c = s; *c != '\0'; c++){
+        sSize++;
+    }
+    int mirrorIdx = sSize-1;
+    int mirrorIdxStart = mirrorIdx;
+    int nonPalLength = 0;
+    int i = 0;
+    while(i<mirrorIdx){
+        if(*(s+i) == *(s+mirrorIdx)){
+            i++;
+            mirrorIdx--;
+            continue;
+        }
+        else{
+            mirrorIdxStart--;
+            mirrorIdx = mirrorIdxStart;
+            i = 0;
+            nonPalLength++;
+        }
+    }
+    char* sol = malloc((nonPalLength + sSize + 1) * sizeof(char));
+    int idx = 0;
+    for(int i = 0; i < nonPalLength; i++){
+        sol[idx] = *(s+sSize-1-i);
+        idx++;
+    }
+    for(char* c = s; *c != '\0'; c++){
+        sol[idx] = *c;
+        idx++;
+    }
+    sol[idx] = '\0';
+    return sol;
+}
