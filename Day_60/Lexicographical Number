@@ -1,0 +1,24 @@
+void DFS(int* s, int* size, int n, int last){
+    int i, x;
+    // Loop through all possible digits from 0 to 9
+    for(i = 0; i <= 9; i++){
+        // Skip leading zeroes, if we are starting a new number (last == 0)
+        if(last == 0 && i == 0)i = 1;  // Start from 1 instead of 0 to avoid numbers like 00
+        // Construct the new number by appending `i` to `last`
+        x = i + last;
+        // If the new number exceeds `n`, stop this path
+        if(x > n)return;
+        // Add the new number to the result array
+        s[(*size)++] = x;
+        // Recursively explore further numbers by appending digits to `x`
+        if(x * 10 <= n) DFS(s, size, n, x * 10);
+    }
+}
+
+int* lexicalOrder(int n, int* returnSize) {
+    int* s=malloc(n*sizeof(int));
+    int size=0;
+    *returnSize=n;
+    DFS(s,&size,n,0);
+    return s;
+}
