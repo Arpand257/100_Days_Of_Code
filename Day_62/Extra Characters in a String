@@ -1,0 +1,144 @@
+typedef struct node {
+    struct node *next[26];
+    bool is_end;
+} node_t;
+
+#define MIN(a, b) ((a) < (b) ? (a) : (b));
+
+void trie_init(node_t **head)
+{
+    *head = (node_t *)calloc(1, sizeof(node_t));
+}
+
+void trie_insert(node_t *head, char *s)
+{
+    while (*s) {
+        char c = *s - 'a';
+
+        if (head->next[c] == NULL) {
+            head->next[c] = (node_t *)calloc(1, sizeof(node_t));
+        }
+
+        head = head->next[c];
+        s++;
+    }
+
+    head->is_end = true;
+}
+
+int trie_search(node_t *head, char *s, int *len_out)
+{
+    int cnt = 0, len = 0;
+
+    while (*s) {
+
+        char c = *s - 'a';
+
+        if (head->next[c] == NULL) {
+            break;
+        }
+
+        head = head->next[c];
+        s++;
+        len++;
+
+        /* Store the lengths of matching words in output array */
+        if (head->is_end == true) {
+            len_out[cnt] = len;
+            cnt++;
+        }
+    }
+
+    return cnt;
+}
+
+void trie_release(node_t *head)
+{
+    if (head) {
+
+        for (int i = 0; i < 26; i++) {
+            trie_release(head->next[i]);
+        }
+
+        free(head);
+    }
+}
+
+int minExtra(int idx, char *s, node_t *trie, int *dp)
+{
+    int lens[50], cnt = 0, min = INT_MAX, extra;
+
+    /* Reached end of string, no extra character anymore */
+    if (s[idx] == 0) {
+        return 0;
+    }
+
+    if (dp[idx] != -1) {
+        return dp[idx];
+    }
+
+    /* Checks if any substring starting at the current index matches the words */
+    cnt = trie_search(trie, &s[idx], lens);
+
+    /* Skip matched substrings */
+    for (int i = 0; i < cnt; i++) {
+        extra = minExtra(idx + lens[i], s, trie, dp);
+        min = MIN(min, extra);
+    }
+
+    /* Skip current character */
+    extra = 1 + minExtra(idx + 1, s, trie, dp);
+    min = MIN(min, extra);
+
+    dp[idx] = min;
+
+    return min;
+}
+
+int minExtraChar(char * s, char ** dictionary, int dictionarySize){
+    /*
+     * Input:
+     *  s, 1 <= len <= 50
+     *  dictionary
+     *  dictionarySize
+     */
+
+    /*
+     * Algorithm:
+     *  Store the words in Trie
+     *  Scan character 0 ~ n - 1 in s, check if any 0 ~ n - 1 sustring matches the words
+     *      Skip number of characters and contine to compare the rest characters
+     *      or skip current character and contine to compare the rest characters
+     */
+
+    node_t *trie = NULL;
+    int min = 0, len = strlen(s), *dp;
+
+    trie_init(&trie);
+
+    /* Allocate dp[n - 1][n] DP table, n is the length of s */
+    dp = (int *)malloc(sizeof(int *) * len);
+
+    for (int i = 0; i < len; i++) {
+        dp[i] = -1;
+    }
+
+    /* Insert words into trie */
+    for (int i = 0; i < dictionarySize; i++) {
+        trie_insert(trie, dictionary[i]);
+    }
+
+    /*
+     * Output:
+     *  Return the minimum number of extra characters left over if you break up s optimally.
+     */
+
+    min = minExtra(0, s, trie, dp);
+
+    /* Release memory */
+    trie_release(trie);
+
+    free(dp);
+
+    return min;
+}
