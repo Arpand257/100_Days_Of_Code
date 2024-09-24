@@ -1,0 +1,54 @@
+#define maxLen 10
+
+typedef struct {
+    char str[maxLen];
+    int type;
+} Word;
+
+int max(int a, int b) { return (a > b) ? a : b; }
+
+int maxprefixLen(char *a, char *b) {
+    int len = strlen(a);
+    int minLen = strlen(b);
+    int i;
+    for (i = 0; i < len && i < minLen; i++) {
+        if (a[i] != b[i]) {
+            break;
+        }
+    }
+    return i;
+}
+
+int cmp(const void *a, const void *b) {
+    Word *wa = (Word *)a;
+    Word *wb = (Word *)b;
+    return strcmp(wa->str, wb->str);
+}
+
+int longestCommonPrefix(int *arr1, int arr1Size, int *arr2, int arr2Size) {
+    char str1[20], str2[20];
+    Word *words = (Word *)malloc((arr1Size + arr2Size) * sizeof(Word));
+    int idx = 0;
+    for (int i = 0; i < arr1Size; i++) {
+        snprintf(str1, sizeof(str1), "%d", arr1[i]);
+        words[idx].type = 1;
+        strcpy(words[idx].str, str1);
+        idx++;
+    }
+    for (int j = 0; j < arr2Size; j++) {
+        snprintf(str2, sizeof(str2), "%d", arr2[j]);
+        words[idx].type = 2;
+        strcpy(words[idx].str, str2);
+        idx++;
+    }
+    qsort(words, idx, sizeof(Word), cmp);
+    int res = 0;
+    for (int i = 1; i < arr1Size + arr2Size; i++) {
+        Word w1 = words[i - 1];
+        Word w2 = words[i];
+        if (w1.type != w2.type) {
+            res = max(res, maxprefixLen(w1.str, w2.str));
+        }
+    }
+    return res;
+}
