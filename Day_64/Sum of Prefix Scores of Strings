@@ -1,0 +1,59 @@
+// Trie node structure
+struct TrieNode {
+    struct TrieNode* child[26];
+    int freq;
+};
+
+// Function to create a new Trie node
+struct TrieNode* getNode() {
+    struct TrieNode* node = malloc(sizeof(struct TrieNode));
+    node->freq = 0;
+    for (int i = 0; i < 26; i++) {
+        node->child[i] = NULL;
+    }
+    return node;
+}
+
+// Function to insert a key into the Trie
+void insert(struct TrieNode* root, const char* key) {
+    struct TrieNode* curr = root;
+    while (*key) {
+        int index = *key - 97;
+        if (!curr->child[index]) {
+            curr->child[index] = getNode();
+        }
+        curr->child[index]->freq++;
+        curr = curr->child[index];
+        key++;
+    }
+}
+
+int freq(struct TrieNode* root, const char* key) {
+    struct TrieNode* curr = root;
+    int count=0;
+    while (*key) {
+        int index = *key - 97;
+        if (!curr->child[index]) {
+            return false;
+        }
+        count+= curr->child[index]->freq;
+        curr = curr->child[index];
+        key++;
+    }
+    return count;
+}
+int* sumPrefixScores(char** words, int wordsSize, int* returnSize) {
+    *returnSize=wordsSize;
+    int *res=malloc(wordsSize*sizeof(int));
+    struct TrieNode* root = getNode();
+    //generate the trie
+    for (int i = 0; i < wordsSize; i++) {
+        insert(root, words[i]);
+    }
+    //count the frequency of letter from each words
+    for (int i=0;i < wordsSize;i++)  {
+        res[i]= freq(root,words[i]);
+    }
+    
+    return res;
+}
