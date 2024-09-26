@@ -1,0 +1,54 @@
+typedef struct Event {
+    int start;
+    int end;
+    struct Event* next;
+} Event;
+typedef struct {
+    Event* head;
+} MyCalendar;
+MyCalendar* myCalendarCreate() {
+    MyCalendar* calendar = (MyCalendar*)malloc(sizeof(MyCalendar));
+    calendar->head = NULL;
+    return calendar;
+}
+Event* createEvent(int start, int end) {
+    Event* newEvent = (Event*)malloc(sizeof(Event));
+    newEvent->start = start;
+    newEvent->end = end;
+    newEvent->next = NULL;
+    return newEvent;
+}
+bool myCalendarBook(MyCalendar* obj, int start, int end) {
+    Event* newEvent = createEvent(start, end);
+    if (obj->head == NULL) {
+        obj->head = newEvent;
+        return true;
+    }
+    Event* prev = NULL;
+    Event* curr = obj->head;
+    while (curr != NULL) {
+        if (start < curr->end && end > curr->start) {
+            free(newEvent);
+            return false;
+        }
+        prev = curr;
+        curr = curr->next;
+    }
+    if (prev != NULL) {
+        prev->next = newEvent;
+    } else {
+        obj->head = newEvent;
+    }
+    return true;
+}
+
+// Function to free the calendar and its events
+void myCalendarFree(MyCalendar* obj) {
+    Event* curr = obj->head;
+    while (curr != NULL) {
+        Event* temp = curr;
+        curr = curr->next;
+        free(temp);
+    }
+    free(obj);
+}
