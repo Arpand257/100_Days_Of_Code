@@ -1,0 +1,58 @@
+typedef struct MyCalendarTwo{
+    int s;
+    int e;
+    struct MyCalendarTwo *next;
+} MyCalendarTwo;
+
+
+MyCalendarTwo* myCalendarTwoCreate() { 
+    MyCalendarTwo *p = (MyCalendarTwo *)calloc(2, sizeof(MyCalendarTwo));
+    return p;
+}
+
+bool myCalendarTwoBook(MyCalendarTwo* obj, int start, int end) {
+    MyCalendarTwo *temp, *overlapTail;
+
+    temp = obj + 1;
+    while (temp->next != NULL){
+        if (!(start >= temp->next->e || end <= temp->next->s))
+            return false;
+        temp = temp->next;
+    }
+    overlapTail = temp;
+
+    temp = obj;
+    while (temp->next != NULL){
+        if (!(start >= temp->next->e || end <= temp->next->s)){
+            MyCalendarTwo *newOverlap = (MyCalendarTwo *)malloc(sizeof(MyCalendarTwo));
+            newOverlap->s = start > temp->next->s ? start: temp->next->s; 
+            newOverlap->e = end > temp->next->e ? temp->next->e: end;
+            newOverlap->next = NULL;
+            overlapTail->next = newOverlap;
+            overlapTail = newOverlap;
+        }
+        temp = temp->next;
+    }
+    temp->next = (MyCalendarTwo *)malloc(sizeof(MyCalendarTwo));
+    temp->next->s = start;
+    temp->next->e = end;
+    temp->next->next = NULL;
+    return true;
+}
+
+void myCalendarTwoFree(MyCalendarTwo* obj) {
+    MyCalendarTwo *temp, *pre;
+
+    temp = (obj + 1)->next;
+    while (temp != NULL){
+        pre = temp;
+        temp = temp->next;
+        free(pre);
+    }
+    temp = obj;
+    while (temp != NULL){
+        pre = temp;
+        temp = temp->next;
+        free(pre);
+    }
+}
