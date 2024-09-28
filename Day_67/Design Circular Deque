@@ -1,0 +1,122 @@
+struct DoublyLinkedList {
+    short val;
+    struct DoublyLinkedList *next ,*prev;
+};
+
+typedef struct {
+    struct DoublyLinkedList *head, *tail;
+    short k, count;
+} MyCircularDeque;
+
+
+MyCircularDeque* myCircularDequeCreate(int k) {
+    MyCircularDeque* new = (MyCircularDeque*)malloc(sizeof(MyCircularDeque));
+    new->head = NULL, new->tail = NULL;
+    new->k = k, new->count = 0;
+    return new;
+}
+
+bool myCircularDequeInsertFront(MyCircularDeque* obj, int value) {
+    if(obj->count == obj->k) return 0;
+    obj->count++;
+
+    if(!obj->head){
+        obj->head = (struct DoublyLinkedList*)malloc(sizeof(struct DoublyLinkedList));
+        obj->head->val = value;
+        obj->head->prev = NULL;
+        obj->head->next = NULL;
+        obj->tail = obj->head;
+        return 1;
+    }
+
+    struct DoublyLinkedList *new = (struct DoublyLinkedList*)malloc(sizeof(struct DoublyLinkedList));
+    new->val = value;
+    new->prev = NULL;
+    new->next = obj->head;
+
+    obj->head->prev = new;
+    obj->head = new;
+
+    return 1;
+}
+
+bool myCircularDequeInsertLast(MyCircularDeque* obj, int value) {
+    if(obj->count == obj->k) return 0;
+    obj->count++;
+
+    if(!obj->tail){
+        obj->tail = (struct DoublyLinkedList*)malloc(sizeof(struct DoublyLinkedList));
+        obj->tail->val = value;
+        obj->tail->prev = NULL;
+        obj->tail->next = NULL;
+        obj->head = obj->tail;
+        return 1;
+    }
+
+    struct DoublyLinkedList *new = (struct DoublyLinkedList*)malloc(sizeof(struct DoublyLinkedList));
+    new->val = value;
+    new->prev = obj->tail;
+    new->next = NULL;
+
+    obj->tail->next = new;
+    obj->tail = new;
+
+    return 1;
+}
+
+bool myCircularDequeDeleteFront(MyCircularDeque* obj) {
+    if(obj->count == 0) return 0;
+    obj->count--;
+    
+    struct DoublyLinkedList *tmp = obj->head;
+
+    if(obj->head == obj->tail)
+        obj->head = NULL, obj->tail = NULL;
+    else obj->head = obj->head->next, obj->head->prev = NULL;
+
+    free(tmp);
+
+    return 1;
+}
+
+bool myCircularDequeDeleteLast(MyCircularDeque* obj) {
+    if(obj->count == 0) return 0;
+    obj->count--;
+
+    struct DoublyLinkedList *tmp = obj->tail;
+
+    if(obj->head == obj->tail)
+        obj->head = NULL, obj->tail = NULL;
+    else obj->tail = obj->tail->prev, obj->tail->next = NULL;
+
+    free(tmp);
+
+    return 1;
+}
+
+int myCircularDequeGetFront(MyCircularDeque* obj) {
+    return obj->head ? obj->head->val : -1;
+}
+
+int myCircularDequeGetRear(MyCircularDeque* obj) {
+    return obj->tail ? obj->tail->val : -1;
+}
+
+bool myCircularDequeIsEmpty(MyCircularDeque* obj) {
+    return obj->head ? 0 : 1;
+}
+
+bool myCircularDequeIsFull(MyCircularDeque* obj) {
+    return obj->k == obj->count;
+}
+
+void myCircularDequeFree(MyCircularDeque* obj) {
+    struct DoublyLinkedList *ptr = obj->head, *tmp;
+    while(ptr){
+        tmp = ptr;
+        ptr = ptr->next;
+        free(tmp);
+    }
+
+    free(obj);
+}
