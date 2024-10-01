@@ -1,0 +1,13 @@
+bool canArrange(int* arr, int arrSize, int k) {
+    int f[k];
+    memset(f,0,sizeof(f));
+    for(int i=0;i<arrSize;i++){
+        int cnt=arr[i]%k;
+        if(cnt<0)cnt+=k;
+        f[cnt]++;
+    }
+    for(int i=1;i<=k/2;i++){
+        if((f[i]!=f[k-i]))return false;
+    }
+    return f[0]%2?false:true;
+}
