@@ -1,0 +1,108 @@
+// A simple structure for hash map node (key-value pair)
+typedef struct HashNode {
+    int key;
+    int value;
+    struct HashNode* next;
+} HashNode;
+
+// Hash map structure
+typedef struct HashMap {
+    int size;
+    HashNode** table;
+} HashMap;
+
+// Hash function
+unsigned int hash(int key, int size) {
+    return (unsigned int)(key % size);
+}
+
+// Create a hash map with given size
+HashMap* createHashMap(int size) {
+    HashMap* map = (HashMap*)malloc(sizeof(HashMap));
+    map->size = size;
+    map->table = (HashNode**)malloc(size * sizeof(HashNode*));
+    for (int i = 0; i < size; i++) {
+        map->table[i] = NULL;
+    }
+    return map;
+}
+
+// Insert a key-value pair into the hash map
+void insertHashMap(HashMap* map, int key, int value) {
+    int index = hash(key, map->size);
+    HashNode* node = (HashNode*)malloc(sizeof(HashNode));
+    node->key = key;
+    node->value = value;
+    node->next = map->table[index];
+    map->table[index] = node;
+}
+
+// Get a value from the hash map by key
+int getHashMap(HashMap* map, int key) {
+    int index = hash(key, map->size);
+    HashNode* node = map->table[index];
+    while (node) {
+        if (node->key == key) {
+            return node->value;
+        }
+        node = node->next;
+    }
+    return -2; // Not found
+}
+
+// Free the hash map memory
+void freeHashMap(HashMap* map) {
+    for (int i = 0; i < map->size; i++) {
+        HashNode* node = map->table[i];
+        while (node) {
+            HashNode* temp = node;
+            node = node->next;
+            free(temp);
+        }
+    }
+    free(map->table);
+    free(map);
+}
+
+// Function to find the minimum subarray that can be removed
+int minSubarray(int* nums, int numsSize, int p) {
+    int totalSum = 0;
+    
+    // Calculate total sum mod p
+    for (int i = 0; i < numsSize; i++) {
+        totalSum = (totalSum + nums[i]) % p;
+    }
+    
+    // If total sum is already divisible by p, no need to remove any subarray
+    if (totalSum == 0) {
+        return 0;
+    }
+
+    // Create a hash map for storing (prefix sum mod p) -> index
+    int hashSize = numsSize > 100 ? numsSize : 100; // Use numsSize as initial hash size
+    HashMap* mod_map = createHashMap(hashSize);
+
+    insertHashMap(mod_map, 0, -1);  // Initialize for prefix sum modulo 0
+    int prefixSum = 0;
+    int result = numsSize;
+
+    // Traverse the array and calculate prefix sums
+    for (int i = 0; i < numsSize; i++) {
+        prefixSum = (prefixSum + nums[i]) % p;
+
+        // Calculate the required modulo value to remove a valid subarray
+        int requiredMod = (prefixSum - totalSum + p) % p;
+
+        int requiredIndex = getHashMap(mod_map, requiredMod);
+        if (requiredIndex != -2) {
+            // Found a valid subarray, update result with minimum length
+            result = (i - requiredIndex < result) ? i - requiredIndex : result;
+        }
+
+        // Update the mod_map with the current prefix sum modulo and index
+        insertHashMap(mod_map, prefixSum, i);
+    }
+
+    freeHashMap(mod_map);
+    return result < numsSize ? result : -1;  // Return -1 if no valid subarray found
+}
