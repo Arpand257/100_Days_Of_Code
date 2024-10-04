@@ -1,0 +1,23 @@
+long long dividePlayers(int* skill, int skillSize) {
+    long long ans = 0, tmp = 0;
+    int group_n = skillSize/2, avg = 0;
+    int table[1001] = {0};
+    for(int i = 0;i<skillSize;i++)
+    {
+        table[skill[i]]++;
+        tmp += skill[i];
+    }
+    if(tmp % group_n) return -1;
+    avg = tmp/group_n;
+    for(int i = 1;i<1001;i++)
+    {
+        if(table[i] == 0) continue;
+        tmp = avg-i;
+        if(( table[i]>0 && table[tmp] == 0) || (tmp != i && table[tmp] != table[i]) || (tmp == i && table[i]<2))
+            return -1;
+        ans += i*tmp* (i==tmp? table[i]/2 : table[i] );
+        table[i] = 0;
+        table[tmp] = 0;
+    }   
+    return ans;
+}
